@@ -20,6 +20,7 @@ your app:
 
 ```js
 import {createChildRoutesSelector, createGetChildRoutes} from 'react-router-redux-features'
+import {replace} from 'react-router-redux'
 
 const FeatureStateAlert = ({featureName, featureState}) => (
   featureState instanceof Error
