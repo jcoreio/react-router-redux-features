@@ -1,5 +1,19 @@
 // @flow
 
-import React from "react";
-declare export default function Hello(): React$Element<{}>;
+import type {FeatureState} from 'redux-features'
+
+export type FeatureStateAlertProps = {
+  featureId: string,
+  featureName: string,
+  featureState: FeatureState,
+}
+
+export type FeatureStateAlert = ReactClass<FeatureStateAlertProps>
+
+import _createChildRoutesSelector from './createChildRoutesSelector'
+import _createGetChildRoutes from './createGetChildRoutes'
+
+declare export var createChildRoutesSelector: typeof _createChildRoutesSelector
+declare export var createGetChildRoutes: typeof _createGetChildRoutes
+
 

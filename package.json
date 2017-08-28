@@ -14,6 +14,7 @@
     "copy-flow-files": "cd src; copy *.js.flow **/*.js.flow ../lib",
     "build": "rimraf lib && babel src --out-dir lib",
     "test": "NODE_ENV=production BABEL_ENV=test nyc --reporter=lcov --reporter=text mocha $npm_package_config_mocha",
+    "test:nocov": "NODE_ENV=production BABEL_ENV=test mocha $npm_package_config_mocha",
     "test:watch": "mocha --watch $npm_package_config_mocha",
     "commitmsg": "validate-commit-msg",
     "precommit": "npm run lint && flow",
@@ -92,14 +93,25 @@
     "react-addons-test-utils": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-hot-loader": "^3.0.0-beta.2",
+    "react-redux": "^5.0.6",
+    "react-router": "3.0.0",
+    "react-router-redux": "^4.0.8",
+    "redux-features": "^2.0.0",
+    "redux-logger": "^3.0.6",
     "rimraf": "^2.5.4",
     "semantic-release": "^6.3.6",
     "validate-commit-msg": "^2.8.2"
   },
   "peerDependencies": {
-    "react": "0.14.x || ^15.0.0"
+    "react": "0.14.x || ^15.0.0",
+    "react-redux": "^5.0.0",
+    "react-router": "^3.0.0",
+    "redux-features": "^2.0.0"
   },
   "dependencies": {
-    "prop-types": "^15.0.0"
+    "lodash.defaults": "^4.2.0",
+    "lodash.memoize": "^4.1.2",
+    "prop-types": "^15.0.0",
+    "reselect": "^3.0.1"
   }
 }

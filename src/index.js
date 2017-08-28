@@ -1,7 +1,7 @@
 /* @flow */
 
-import React from 'react'
+import createChildRoutesSelector from './createChildRoutesSelector'
+import createGetChildRoutes from './createGetChildRoutes'
 
-const Hello = () => <div>Hello world!</div>
+export {createChildRoutesSelector, createGetChildRoutes}
 
-export default Hello

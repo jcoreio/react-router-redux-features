@@ -1,0 +1,23 @@
+// @flow
+
+import type {Store} from 'redux'
+import type {PlainRoute} from 'react-router'
+import {createSelector} from 'reselect'
+import type {Feature, Features, FeatureStates} from 'redux-features'
+import type {FeatureStateAlert as _FeatureStateAlert} from './index'
+
+export type GetRoutes<S, A> = (feature: Feature<S, A>) => ?(PlainRoute | Array<PlainRoute>)
+
+export type Options<S, A> = {
+  isServer?: boolean,
+  getFeatureStates?: (state: S) => FeatureStates,
+  getFeatures?: (state: S) => Features<S, A>,
+  getFeatureName?: (featureId: string, feature: Feature<S, A>) => string,
+  rematchRoutes?: (store: Store<S, A>) => any,
+  FeatureStateAlert?: _FeatureStateAlert,
+}
+
+declare export default function createChildRoutesSelector<S, A>(
+  options: Options<S, A>
+): (getRoutes: GetRoutes<S, A>) => (store: Store<S, A>) => Array<PlainRoute>;
+

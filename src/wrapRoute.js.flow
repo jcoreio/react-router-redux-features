@@ -1,0 +1,23 @@
+// @flow
+
+import type {PlainRoute, RouterState, RouteComponent} from 'react-router'
+import {connect} from 'redux'
+import type {Store} from 'redux'
+import {loadFeature} from 'redux-features'
+import type {FeatureStates} from 'redux-features'
+import {createSelector} from 'reselect'
+import type {FeatureStateAlert as _FeatureStateAlert} from './index'
+
+export type Options<S, A> = {
+  route: PlainRoute | (store: Store<S, A>) => PlainRoute,
+  store: Store<S, A>,
+  featureId: string,
+  featureName: string,
+  isServer?: boolean,
+  getFeatureStates: (state: S) => FeatureStates,
+  rematchRoutes?: (store: Store<S, A>) => any,
+  FeatureStateAlert?: _FeatureStateAlert,
+}
+
+declare export default function wrapRoute<S, A>(options: Options<S, A>): PlainRoute;
+
