@@ -30,7 +30,7 @@ const FeatureStateAlert = ({featureName, featureState}) => (
       : <h1 />
 )
 
-const _createChildRoutesSelector = createChildRoutesSelector({
+const appCreateChildRoutesSelector = createChildRoutesSelector({
   // These are the default getters; you can customize them if the state lives elsewhere
   getFeatureStates: state => state.featureStates,
   getFeatures: state => state.features,
@@ -48,9 +48,9 @@ const _createChildRoutesSelector = createChildRoutesSelector({
   isServer: false,
 })
 
-export {createChildRoutesSelector: _createChildRoutesSelector}
+export {appCreateChildRoutesSelector as createChildRoutesSelector}
 
-export const getChildRoutes = createGetChildRoutes(createChildRoutesSelector)
+export const getChildRoutes = createGetChildRoutes(appCreateChildRoutesSelector)
 ```
 
 ### Create a parent route
@@ -62,7 +62,7 @@ import {getChildRoutes} from './featureRoutes'
 
 export default store => {
   path: '/',
-  getChildRoutes: getChildRoutes(feature => feature.rootRoutes),
+  getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
 }
 ```
 
