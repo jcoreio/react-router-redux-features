@@ -72,7 +72,7 @@ export default function wrapRoute<S, A>(
         else callback(null, isServer ? null : defaultValue)
       }
       if (promise) {
-        if (isServer) return promise.then(done).catch(callback)
+        if (isServer) promise.then(done).catch(callback)
         else if (rematchRoutes) promise.then(() => rematchRoutes(store))
       }
       return done()
@@ -93,7 +93,7 @@ export default function wrapRoute<S, A>(
       else callback(null)
     }
     if (promise) {
-      if (isServer) return promise.then(done).catch(callback)
+      if (isServer) promise.then(done).catch(callback)
       else if (rematchRoutes) promise.then(() => rematchRoutes(store))
     }
     return done()
