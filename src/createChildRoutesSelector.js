@@ -8,7 +8,8 @@ import {createSelector} from 'reselect'
 import type {Feature} from 'redux-features'
 import wrapRoute from './wrapRoute'
 
-import type {GetRoutes, Options} from './createChildRoutesSelector'
+import type {Options} from './createChildRoutesSelector'
+import type {GetRoutes} from './wrapRoute'
 
 const optionsDefaults = {
   getFeatureStates: state => state.featureStates,
@@ -34,6 +35,7 @@ export default function createChildRoutesSelector<S, A>(
             ...options,
             store,
             route,
+            getRoutes,
             featureId,
             featureName,
           })

@@ -6,7 +6,7 @@ import {createSelector} from 'reselect'
 import type {Feature, Features, FeatureStates} from 'redux-features'
 import type {FeatureStateAlert as _FeatureStateAlert} from './index'
 
-export type GetRoutes<S, A> = (feature: Feature<S, A>) => ?(PlainRoute | Array<PlainRoute>)
+import type {GetRoutes} from './wrapRoute'
 
 export type Options<S, A> = {
   isServer?: boolean,

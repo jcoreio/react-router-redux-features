@@ -4,7 +4,7 @@ import type {GetChildRoutes} from 'react-router'
 import type {Store} from 'redux'
 import type {PlainRoute} from 'react-router'
 
-import type {GetRoutes} from './createChildRoutesSelector'
+import type {GetRoutes} from './wrapRoute'
 
 export default function createGetChildRoutes<S, A>(
   createChildRoutesSelector: (getRoutes: GetRoutes<S, A>) => (store: Store<S, A>) => Array<PlainRoute>

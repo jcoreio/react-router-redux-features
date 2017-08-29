@@ -13,6 +13,8 @@ import {
   LOAD_FEATURE,
 } from 'redux-features'
 
+import ChangeQueue from './ChangeQueue'
+
 describe('react-router-redux-features', () => {
   let store, featurePromises, history
 
@@ -20,6 +22,7 @@ describe('react-router-redux-features', () => {
   const FooComponent = () => <h1>Foo</h1>
   const BarComponent = () => <h1>Bar</h1>
   const BazComponent = () => <h1>Baz</h1>
+  const QuxComponent = () => <h1>Qux</h1>
 
   const fooFeature = {
     rootRoutes: {
@@ -58,6 +61,10 @@ describe('react-router-redux-features', () => {
             indexRoute: {
               component: BazComponent,
             },
+            childRoutes: [{
+              path: 'qux',
+              component: QuxComponent,
+            }],
           },
         ]
       })
@@ -127,7 +134,7 @@ describe('react-router-redux-features', () => {
         },
         loadFeatureMiddleware(),
         featureMiddlewaresMiddleware(),
-        // require('redux-logger'),
+        // require('redux-logger').default,
       )
     )
 
@@ -156,6 +163,19 @@ describe('react-router-redux-features', () => {
 
     const getChildRoutes = createGetChildRoutes(selectChildRoutes)
 
+
+    let comp
+    const textQueue = new ChangeQueue()
+    function handleUpdate() {
+      let text
+      try {
+        text = comp.text()
+      } catch (error) {
+        // ignore
+      }
+      if (text) textQueue.add(text)
+    }
+
     const routes = {
       path: '/',
       indexRoute: {
@@ -163,42 +183,25 @@ describe('react-router-redux-features', () => {
       },
       getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
     }
-    const comp = mount(
+    comp = mount(
       <Provider store={store}>
-        <Router history={history} routes={routes} />
+        <Router history={history} routes={routes} onUpdate={handleUpdate} />
       </Provider>
     )
     expect(comp.text()).to.equal('Root')
 
     store.dispatch(push('/redirect'))
-    await new Promise(resolve => resolve())
-    expect(store.getState().featureStates.redirect).to.equal('LOADING')
-    await Promise.all(featurePromises)
-    expect(store.getState().featureStates.foo).to.equal('LOADING')
-    await new Promise(resolve => resolve())
-    expect(comp.text()).to.equal('Loading foo...')
-    await Promise.all(featurePromises)
-    expect(comp.text()).to.equal('Foo')
-    expect(store.getState().featureStates.foo).to.equal('LOADED')
-    expect(store.getState().featureStates.bar).to.equal('NOT_LOADED')
+    expect(await textQueue.poll()).to.equal('Loading redirect...')
+    expect(await textQueue.poll()).to.equal('Loading foo...')
+    expect(await textQueue.poll()).to.equal('Foo')
 
-    featurePromises = []
     store.dispatch(push('/baz'))
-    await new Promise(resolve => resolve())
-    expect(store.getState().featureStates.bar).to.equal('LOADING')
-    expect(comp.text()).to.equal('Loading bar...')
-    await Promise.all(featurePromises)
-    expect(comp.text()).to.equal('Baz')
-    expect(store.getState().featureStates.bar).to.equal('LOADED')
+    expect(await textQueue.poll()).to.equal('Loading bar...')
+    expect(await textQueue.poll()).to.equal('Baz')
 
-    featurePromises = []
     store.dispatch(push('/counter'))
-    await new Promise(resolve => resolve())
-    expect(store.getState().featureStates.counter).to.equal('LOADING')
-    expect(comp.text()).to.equal('Loading counter...')
-    await Promise.all(featurePromises)
-    expect(comp.text()).to.equal('1')
-    expect(store.getState().featureStates.counter).to.equal('LOADED')
+    expect(await textQueue.poll()).to.equal('Loading counter...')
+    expect(await textQueue.poll()).to.equal('1')
   })
   it('with isServer', async function () {
     const FeatureStateAlert = ({featureName, featureState}) => (
@@ -216,6 +219,18 @@ describe('react-router-redux-features', () => {
 
     const getChildRoutes = createGetChildRoutes(selectChildRoutes)
 
+    let comp
+    const textQueue = new ChangeQueue()
+    function handleUpdate() {
+      let text
+      try {
+        text = comp.text()
+      } catch (error) {
+        // ignore
+      }
+      if (text) textQueue.add(text)
+    }
+
     const routes = {
       path: '/',
       indexRoute: {
@@ -223,32 +238,24 @@ describe('react-router-redux-features', () => {
       },
       getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
     }
-    const comp = mount(
+    comp = mount(
       <Provider store={store}>
-        <Router history={history} routes={routes} />
+        <Router history={history} routes={routes} onUpdate={handleUpdate} />
       </Provider>
     )
     expect(comp.text()).to.equal('Root')
 
     store.dispatch(push('/foo'))
-    await new Promise(resolve => resolve())
-    expect(store.getState().featureStates.foo).to.equal('LOADING')
-    await Promise.all(featurePromises)
-    expect(store.getState().featureStates.foo).to.equal('LOADED')
-    expect(store.getState().featureStates.bar).to.equal('NOT_LOADED')
+    expect(await textQueue.poll()).to.equal('Foo')
 
-    featurePromises = []
     store.dispatch(push('/baz'))
-    await new Promise(resolve => resolve())
-    expect(store.getState().featureStates.bar).to.equal('LOADING')
-    await Promise.all(featurePromises)
-    expect(store.getState().featureStates.bar).to.equal('LOADED')
+    expect(await textQueue.poll()).to.equal('Baz')
 
-    featurePromises = []
+    store.dispatch(push('/baz/qux'))
+    expect(await textQueue.poll()).to.equal('Qux')
+
     store.dispatch(push('/counter'))
-    await new Promise(resolve => resolve())
-    expect(store.getState().featureStates.counter).to.equal('LOADING')
-    await Promise.all(featurePromises)
-    expect(store.getState().featureStates.counter).to.equal('LOADED')
+    expect(await textQueue.poll()).to.equal('Baz') // this seems unavoidable due to onChange hooks...
+    expect(await textQueue.poll()).to.equal('1')
   })
 })
