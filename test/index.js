@@ -255,7 +255,6 @@ describe('react-router-redux-features', () => {
     expect(await textQueue.poll()).to.equal('Qux')
 
     store.dispatch(push('/counter'))
-    expect(await textQueue.poll()).to.equal('Baz') // this seems unavoidable due to onChange hooks...
     expect(await textQueue.poll()).to.equal('1')
   })
 })

@@ -54,7 +54,7 @@ export default function wrapRoute<S, A>(
       return
     }
     const loadedRoute = selectLoadedRoute(store.getState())
-    if (loadedRoute.getComponent) return loadedRoute.getComponent(nextState, callback)
+    if (loadedRoute.getComponent) loadedRoute.getComponent(nextState, callback)
     else if (loadedRoute.component) callback(null, loadedRoute.component)
     else callback(null, null)
   }
@@ -72,7 +72,10 @@ export default function wrapRoute<S, A>(
         else callback(null, isServer ? null : defaultValue)
       }
       if (promise) {
-        if (isServer) promise.then(done).catch(callback)
+        if (isServer) {
+          promise.then(done).catch(callback)
+          return
+        }
         else if (rematchRoutes) promise.then(() => rematchRoutes(store))
       }
       return done()
@@ -93,7 +96,10 @@ export default function wrapRoute<S, A>(
       else callback(null)
     }
     if (promise) {
-      if (isServer) promise.then(done).catch(callback)
+      if (isServer) {
+        promise.then(done).catch(callback)
+        return
+      }
       else if (rematchRoutes) promise.then(() => rematchRoutes(store))
     }
     return done()
