@@ -1,6 +1,7 @@
 // @flow
 
 import type {PlainRoute, RouterState, RouteComponent} from 'react-router'
+import type {Store} from 'redux'
 import {connect} from 'react-redux'
 import {loadFeature} from 'redux-features'
 import type {Feature, FeatureState} from 'redux-features'
@@ -10,7 +11,7 @@ import type {Options} from './wrapRoute'
 export default function wrapRoute<S, A>(
   options: Options<S, A>
 ): PlainRoute {
-  const {store, featureId, featureName, getFeatureStates, getFeatures, isServer, getRoutes} = options
+  const {store, featureId, featureName, getFeatureStates, getFeatures, isServer, getRoute, getRoutes} = options
   const rematchRoutes = isServer ? null : options.rematchRoutes
   const route = typeof options.route === 'function' ? options.route(store) : options.route
   const result = {...route}
@@ -31,17 +32,23 @@ export default function wrapRoute<S, A>(
 
   const selectLoadedRoute: (state: S) => PlainRoute = createSelector(
     selectFeature,
-    createSelector(
-      getRoutes,
-      (routes: ?(PlainRoute | Array<PlainRoute>)): PlainRoute => {
-        if (!routes) return {}
-        if (!Array.isArray(routes)) routes = [routes]
-        for (let other of routes) {
-          if (typeof other === 'function') other = other(store)
-          if (other.path === route.path) return other
+    getRoute
+      ? createSelector(
+        getRoute,
+        (route: ?(PlainRoute | (store: Store<S, A>) => PlainRoute)): PlainRoute =>
+          typeof route === 'function' ? route(store) : (route || {})
+      )
+      : createSelector(
+        getRoutes || (() => []),
+        (routes: ?(PlainRoute | Array<PlainRoute>)): PlainRoute => {
+          if (!routes) return {}
+          if (!Array.isArray(routes)) routes = [routes]
+          for (let other of routes) {
+            if (typeof other === 'function') other = other(store)
+            if (other.path === route.path) return other
+          }
+          return {}
         }
-        return {}
-      }
     )
   )
 

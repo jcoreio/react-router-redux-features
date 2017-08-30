@@ -12,8 +12,10 @@ export type FeatureStateAlert = ReactClass<FeatureStateAlertProps>
 
 import _createChildRoutesSelector from './createChildRoutesSelector'
 import _createGetChildRoutes from './createGetChildRoutes'
+import _createFeatureRoute from './createFeatureRoute'
 
 declare export var createChildRoutesSelector: typeof _createChildRoutesSelector
 declare export var createGetChildRoutes: typeof _createGetChildRoutes
+declare export var createFeatureRoute: typeof _createFeatureRoute
 
 

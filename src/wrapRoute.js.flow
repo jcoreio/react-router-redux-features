@@ -8,11 +8,13 @@ import type {Feature, Features, FeatureStates} from 'redux-features'
 import {createSelector} from 'reselect'
 import type {FeatureStateAlert as _FeatureStateAlert} from './index'
 
+export type GetRoute<S, A> = (feature: Feature<S, A>) => ?PlainRoute
 export type GetRoutes<S, A> = (feature: Feature<S, A>) => ?(PlainRoute | Array<PlainRoute>)
 
 export type Options<S, A> = {
   route: PlainRoute | (store: Store<S, A>) => PlainRoute,
-  getRoutes: GetRoutes<S, A>,
+  getRoute?: GetRoute<S, A>,
+  getRoutes?: GetRoutes<S, A>,
   store: Store<S, A>,
   featureId: string,
   featureName: string,

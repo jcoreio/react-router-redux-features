@@ -15,11 +15,11 @@ npm install --save react-router-redux-features
 
 ### Create a `featureRoutes.js` file in your app
 
-In this file, you call `react-router-redux-features`' `createChildRoutesSelector` with customization that's global to
-your app:
+In this file, you call `react-router-redux-features`' `create` function with customization that's global to
+your app, and then export the returned functions:
 
 ```js
-import {createChildRoutesSelector, createGetChildRoutes} from 'react-router-redux-features'
+import create from 'react-router-redux-features'
 import {replace} from 'react-router-redux'
 
 const FeatureStateAlert = ({featureName, featureState}) => (
@@ -30,7 +30,7 @@ const FeatureStateAlert = ({featureName, featureState}) => (
       : <h1 />
 )
 
-const appCreateChildRoutesSelector = createChildRoutesSelector({
+const {createChildRoutesSelector, getChildRoutes, featureRoute} = create({
   // These are the default getters; you can customize them if the state lives elsewhere
   getFeatureStates: state => state.featureStates,
   getFeatures: state => state.features,
@@ -48,9 +48,7 @@ const appCreateChildRoutesSelector = createChildRoutesSelector({
   isServer: false,
 })
 
-export {appCreateChildRoutesSelector as createChildRoutesSelector}
-
-export const getChildRoutes = createGetChildRoutes(appCreateChildRoutesSelector)
+export {createChildRoutesSelector, getChildRoutes, featureRoute}
 ```
 
 ### Create a parent route
@@ -94,6 +92,23 @@ store.dispatch(addFeature('foo', fooFeature))
 Now whenever the user navigates to `/foo`, `react-router-redux-features` will automatically load `fooFeature`.  It wraps
 `fooFeature.rootRoutes` to render a `FeatureStatusAlert` while `fooFeature` is loading (or if it fails to load).  Once
 `fooFeature` is loaded, it now has `rootRoutes.component` that gets rendered in place of the `FeatureStatusAlert`.
+
+### Link to a specific feature's route
+
+```js
+import {featureRoute} from './featureRoutes'
+
+const appRoute = store => {
+  path: '/',
+  indexRoute: featureRoute({
+    path: 'foo',
+    store,
+    featureId: 'foo',
+    featureName: 'Foo',
+    getRoute: feature => feature.rootRoutes,
+  }),
+}
+```
 
 ### Accessing the store from feature routes
 

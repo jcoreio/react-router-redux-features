@@ -1,6 +1,5 @@
 // @flow
 
-import defaults from 'lodash.defaults'
 import memoize from 'lodash.memoize'
 import type {Store} from 'redux'
 import type {PlainRoute} from 'react-router'
@@ -11,16 +10,12 @@ import wrapRoute from './wrapRoute'
 import type {Options} from './createChildRoutesSelector'
 import type {GetRoutes} from './wrapRoute'
 
-const optionsDefaults = {
-  getFeatureStates: state => state.featureStates,
-  getFeatures: state => state.features,
-  getFeatureName: featureId => featureId,
-}
+import optionsDefaults from './optionsDefaults'
 
 export default function createChildRoutesSelector<S, A>(
   options: Options<S, A>
 ): (getRoutes: GetRoutes<S, A>) => (store: Store<S, A>) => Array<PlainRoute> {
-  options = defaults(options, optionsDefaults)
+  options = optionsDefaults(options)
   const {getFeatures, getFeatureName} = options
 
   return (getRoutes: GetRoutes<S, A>) => {

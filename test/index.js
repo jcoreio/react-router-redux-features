@@ -3,7 +3,7 @@ import {mount} from 'enzyme'
 import {expect} from 'chai'
 import {Provider} from 'react-redux'
 import {createStore, applyMiddleware, combineReducers} from 'redux'
-import {createChildRoutesSelector, createGetChildRoutes} from '../src'
+import create from '../src'
 import {createMemoryHistory, Router} from 'react-router'
 import {syncHistoryWithStore, routerReducer, routerMiddleware, push, replace} from 'react-router-redux'
 
@@ -146,115 +146,201 @@ describe('react-router-redux-features', () => {
     store.dispatch(addFeature('redirect', redirectFeature))
   })
 
-  it('with rematchRoutes', async function () {
-    const FeatureStateAlert = ({featureName, featureState}) => (
-      featureState instanceof Error
-        ? <h1>Failed to load {featureName}: {featureState.message}</h1>
-        : featureState === 'LOADING'
+  describe('createGetChildRoutes', () => {
+    it('with rematchRoutes', async function () {
+      const FeatureStateAlert = ({featureName, featureState}) => (
+        featureState instanceof Error
+          ? <h1>Failed to load {featureName}: {featureState.message}</h1>
+          : featureState === 'LOADING'
           ? <h1>Loading {featureName}...</h1>
           : <h1 />
-    )
+      )
 
-    const selectChildRoutes = createChildRoutesSelector({
-      isServer: false,
-      FeatureStateAlert,
-      rematchRoutes: store => store.dispatch(replace(store.getState().routing.locationBeforeTransitions)),
-    })
+      const {getChildRoutes} = create({
+        isServer: false,
+        FeatureStateAlert,
+        rematchRoutes: store => store.dispatch(replace(store.getState().routing.locationBeforeTransitions)),
+      })
 
-    const getChildRoutes = createGetChildRoutes(selectChildRoutes)
+      let comp
+      const textQueue = new ChangeQueue()
 
-
-    let comp
-    const textQueue = new ChangeQueue()
-    function handleUpdate() {
-      let text
-      try {
-        text = comp.text()
-      } catch (error) {
-        // ignore
+      function handleUpdate() {
+        let text
+        try {
+          text = comp.text()
+        } catch (error) {
+          // ignore
+        }
+        if (text) textQueue.add(text)
       }
-      if (text) textQueue.add(text)
-    }
 
-    const routes = {
-      path: '/',
-      indexRoute: {
-        component: Root,
-      },
-      getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
-    }
-    comp = mount(
-      <Provider store={store}>
-        <Router history={history} routes={routes} onUpdate={handleUpdate} />
-      </Provider>
-    )
-    expect(comp.text()).to.equal('Root')
+      const routes = {
+        path: '/',
+        indexRoute: {
+          component: Root,
+        },
+        getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
+      }
+      comp = mount(
+        <Provider store={store}>
+          <Router history={history} routes={routes} onUpdate={handleUpdate} />
+        </Provider>
+      )
+      expect(comp.text()).to.equal('Root')
 
-    store.dispatch(push('/redirect'))
-    expect(await textQueue.poll()).to.equal('Loading redirect...')
-    expect(await textQueue.poll()).to.equal('Loading foo...')
-    expect(await textQueue.poll()).to.equal('Foo')
+      store.dispatch(push('/redirect'))
+      expect(await textQueue.poll()).to.equal('Loading redirect...')
+      expect(await textQueue.poll()).to.equal('Loading foo...')
+      expect(await textQueue.poll()).to.equal('Foo')
 
-    store.dispatch(push('/baz'))
-    expect(await textQueue.poll()).to.equal('Loading bar...')
-    expect(await textQueue.poll()).to.equal('Baz')
+      store.dispatch(push('/baz'))
+      expect(await textQueue.poll()).to.equal('Loading bar...')
+      expect(await textQueue.poll()).to.equal('Baz')
 
-    store.dispatch(push('/counter'))
-    expect(await textQueue.poll()).to.equal('Loading counter...')
-    expect(await textQueue.poll()).to.equal('1')
+      store.dispatch(push('/counter'))
+      expect(await textQueue.poll()).to.equal('Loading counter...')
+      expect(await textQueue.poll()).to.equal('1')
+    })
+    it('with isServer', async function () {
+      const FeatureStateAlert = ({featureName, featureState}) => (
+        featureState instanceof Error
+          ? <h1>Failed to load {featureName}: {featureState.message}</h1>
+          : featureState === 'LOADING'
+          ? <h1>Loading {featureName}...</h1>
+          : <h1 />
+      )
+
+      const {getChildRoutes} = create({
+        isServer: true,
+        FeatureStateAlert,
+        rematchRoutes: store => store.dispatch(replace(store.getState().routing.locationBeforeTransitions)),
+      })
+
+      let comp
+      const textQueue = new ChangeQueue()
+
+      function handleUpdate() {
+        let text
+        try {
+          text = comp.text()
+        } catch (error) {
+          // ignore
+        }
+        if (text) textQueue.add(text)
+      }
+
+      const routes = {
+        path: '/',
+        indexRoute: {
+          component: Root,
+        },
+        getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
+      }
+      comp = mount(
+        <Provider store={store}>
+          <Router history={history} routes={routes} onUpdate={handleUpdate} />
+        </Provider>
+      )
+      expect(comp.text()).to.equal('Root')
+
+      store.dispatch(push('/foo'))
+      expect(await textQueue.poll()).to.equal('Foo')
+
+      store.dispatch(push('/baz'))
+      expect(await textQueue.poll()).to.equal('Baz')
+
+      store.dispatch(push('/baz/qux'))
+      expect(await textQueue.poll()).to.equal('Qux')
+
+      store.dispatch(push('/counter'))
+      expect(await textQueue.poll()).to.equal('1')
+    })
   })
-  it('with isServer', async function () {
-    const FeatureStateAlert = ({featureName, featureState}) => (
-      featureState instanceof Error
-        ? <h1>Failed to load {featureName}: {featureState.message}</h1>
-        : featureState === 'LOADING'
-        ? <h1>Loading {featureName}...</h1>
-        : <h1 />
-    )
 
-    const selectChildRoutes = createChildRoutesSelector({
-      isServer: true,
-      FeatureStateAlert,
-    })
+  describe('createFeatureRoute', () => {
+    it('with isServer', async function () {
+      this.timeout(60000)
 
-    const getChildRoutes = createGetChildRoutes(selectChildRoutes)
+      const FeatureStateAlert = ({featureName, featureState}) => (
+        featureState instanceof Error
+          ? <h1>Failed to load {featureName}: {featureState.message}</h1>
+          : featureState === 'LOADING'
+          ? <h1>Loading {featureName}...</h1>
+          : <h1 />
+      )
 
-    let comp
-    const textQueue = new ChangeQueue()
-    function handleUpdate() {
-      let text
-      try {
-        text = comp.text()
-      } catch (error) {
-        // ignore
+      const {featureRoute} = create({
+        isServer: true,
+        FeatureStateAlert,
+        rematchRoutes: store => store.dispatch(replace(store.getState().routing.locationBeforeTransitions)),
+      })
+
+      let comp
+      const textQueue = new ChangeQueue()
+
+      function handleUpdate() {
+        let text
+        try {
+          text = comp.text()
+        } catch (error) {
+          // ignore
+        }
+        if (text) textQueue.add(text)
       }
-      if (text) textQueue.add(text)
-    }
 
-    const routes = {
-      path: '/',
-      indexRoute: {
-        component: Root,
-      },
-      getChildRoutes: getChildRoutes(store, feature => feature.rootRoutes),
-    }
-    comp = mount(
-      <Provider store={store}>
-        <Router history={history} routes={routes} onUpdate={handleUpdate} />
-      </Provider>
-    )
-    expect(comp.text()).to.equal('Root')
+      const routes = {
+        path: '/',
+        indexRoute: {
+          component: Root,
+        },
+        childRoutes: [
+          featureRoute({
+            store,
+            path: 'foo',
+            featureId: 'foo',
+            featureName: 'Foo',
+            getRoute: feature => feature.rootRoutes,
+          }),
+          featureRoute({
+            store,
+            path: 'bar',
+            featureId: 'bar',
+            featureName: 'Bar',
+            getRoute: feature => feature.rootRoutes[0],
+          }),
+          featureRoute({
+            store,
+            path: 'counter',
+            featureId: 'counter',
+            featureName: 'Counter',
+            getRoute: feature => feature.rootRoutes,
+          }),
+          featureRoute({
+            store,
+            path: 'redirect',
+            featureId: 'redirect',
+            featureName: 'Redirect',
+            getRoute: feature => feature.rootRoutes,
+          })
+        ]
+      }
+      comp = mount(
+        <Provider store={store}>
+          <Router history={history} routes={routes} onUpdate={handleUpdate} />
+        </Provider>
+      )
+      expect(comp.text()).to.equal('Root')
 
-    store.dispatch(push('/foo'))
-    expect(await textQueue.poll()).to.equal('Foo')
+      store.dispatch(push('/foo'))
+      expect(await textQueue.poll()).to.equal('Foo')
 
-    store.dispatch(push('/baz'))
-    expect(await textQueue.poll()).to.equal('Baz')
+      store.dispatch(push('/bar'))
+      expect(await textQueue.poll()).to.equal('Bar')
 
-    store.dispatch(push('/baz/qux'))
-    expect(await textQueue.poll()).to.equal('Qux')
-
-    store.dispatch(push('/counter'))
-    expect(await textQueue.poll()).to.equal('1')
+      store.dispatch(push('/counter'))
+      expect(await textQueue.poll()).to.equal('1')
+    })
   })
 })
+
