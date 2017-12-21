@@ -94,7 +94,7 @@
     "react-dom": "^15.4.2",
     "react-hot-loader": "^3.0.0-beta.2",
     "react-redux": "^5.0.6",
-    "react-router": "3.0.0",
+    "react-router": "^3.2.0",
     "react-router-redux": "^4.0.8",
     "redux-features": "^2.0.0",
     "redux-logger": "^3.0.6",
