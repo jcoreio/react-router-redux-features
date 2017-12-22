@@ -3,8 +3,17 @@
 import _createChildRoutesSelector from './createChildRoutesSelector'
 import createGetChildRoutes from './createGetChildRoutes'
 import createFeatureRoute from './createFeatureRoute'
+import type {FeatureState} from 'redux-features'
 
 import type {Options} from './createChildRoutesSelector'
+
+export type FeatureStateAlertProps = {
+  featureId: string,
+  featureName: string,
+  featureState: FeatureState,
+}
+
+export type FeatureStateAlert = ReactClass<FeatureStateAlertProps>
 
 export {
   _createChildRoutesSelector as createChildRoutesSelector,

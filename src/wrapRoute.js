@@ -4,9 +4,27 @@ import type {PlainRoute, RouterState, RouteComponent} from 'react-router'
 import type {Store} from 'redux'
 import {connect} from 'react-redux'
 import {loadFeature} from 'redux-features'
-import type {Feature, FeatureState} from 'redux-features'
+import type {Feature, Features, FeatureState, FeatureStates} from 'redux-features'
 import {createSelector} from 'reselect'
-import type {Options} from './wrapRoute'
+
+import type {FeatureStateAlert as _FeatureStateAlert} from './index'
+
+export type GetRoute<S, A> = (feature: Feature<S, A>) => ?PlainRoute
+export type GetRoutes<S, A> = (feature: Feature<S, A>) => ?(PlainRoute | Array<PlainRoute>)
+
+export type Options<S, A> = {
+  route: PlainRoute | (store: Store<S, A>) => PlainRoute,
+  getRoute?: GetRoute<S, A>,
+  getRoutes?: GetRoutes<S, A>,
+  store: Store<S, A>,
+  featureId: string,
+  featureName: string,
+  isServer?: boolean,
+  getFeatureStates: (state: S) => FeatureStates,
+  getFeatures: (state: S) => Features<S, A>,
+  rematchRoutes?: (store: Store<S, A>) => any,
+  FeatureStateAlert?: _FeatureStateAlert,
+}
 
 export default function wrapRoute<S, A>(
   options: Options<S, A>
@@ -25,10 +43,11 @@ export default function wrapRoute<S, A>(
     features => features[featureId]
   )
 
-  const FeatureStateAlert = options.FeatureStateAlert && connect(createSelector(
+  const optionsFeatureStateAlert = options.FeatureStateAlert
+  const FeatureStateAlert = optionsFeatureStateAlert && connect(createSelector(
     selectFeatureState,
     featureState => ({featureId, featureName, featureState})
-  ))(options.FeatureStateAlert)
+  ))(optionsFeatureStateAlert)
 
   const selectLoadedRoute: (state: S) => PlainRoute = createSelector(
     selectFeature,

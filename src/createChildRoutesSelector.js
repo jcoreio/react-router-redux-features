@@ -4,13 +4,21 @@ import memoize from 'lodash.memoize'
 import type {Store} from 'redux'
 import type {PlainRoute} from 'react-router'
 import {createSelector} from 'reselect'
-import type {Feature} from 'redux-features'
+import type {Feature, Features, FeatureStates} from 'redux-features'
+
+import type {FeatureStateAlert as _FeatureStateAlert} from './index'
 import wrapRoute from './wrapRoute'
-
-import type {Options} from './createChildRoutesSelector'
 import type {GetRoutes} from './wrapRoute'
-
 import optionsDefaults from './optionsDefaults'
+
+export type Options<S, A> = {
+  isServer?: boolean,
+  getFeatureStates?: (state: S) => FeatureStates,
+  getFeatures?: (state: S) => Features<S, A>,
+  getFeatureName?: (featureId: string, feature: Feature<S, A>) => string,
+  rematchRoutes?: (store: Store<S, A>) => any,
+  FeatureStateAlert?: _FeatureStateAlert,
+}
 
 export default function createChildRoutesSelector<S, A>(
   options: Options<S, A>

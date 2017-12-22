@@ -1,10 +1,28 @@
 // @flow
 
-import wrapRoute from './wrapRoute'
-
+import type {Store} from 'redux'
 import type {PlainRoute} from 'react-router'
-import type {FirstOptions, SecondOptions} from './createFeatureRoute'
+import type {Features, FeatureStates} from 'redux-features'
+
+import type {FeatureStateAlert as _FeatureStateAlert} from './index'
 import optionsDefaults from './optionsDefaults'
+import wrapRoute from './wrapRoute'
+import type {GetRoute} from './wrapRoute'
+
+export type FirstOptions<S, A> = {
+  isServer?: boolean,
+  getFeatureStates?: (state: S) => FeatureStates,
+  getFeatures?: (state: S) => Features<S, A>,
+  rematchRoutes?: (store: Store<S, A>) => any,
+  FeatureStateAlert?: _FeatureStateAlert,
+}
+
+export type SecondOptions<S, A> = {
+  store: Store<S, A>,
+  featureId: string,
+  featureName: string,
+  getRoute: GetRoute<S, A>,
+}
 
 export default function createFeatureRoute<S, A>(firstOptions: FirstOptions<S, A>): (options: SecondOptions<S, A>) => PlainRoute {
   firstOptions = optionsDefaults(firstOptions)
