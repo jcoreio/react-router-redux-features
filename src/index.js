@@ -13,7 +13,7 @@ export type FeatureStateAlertProps = {
   featureState: FeatureState,
 }
 
-export type FeatureStateAlert = ReactClass<FeatureStateAlertProps>
+export type FeatureStateAlert = React$ComponentType<FeatureStateAlertProps>
 
 export {
   _createChildRoutesSelector as createChildRoutesSelector,

@@ -13,7 +13,7 @@
  * https://github.com/flowtype/flow-typed
  */
 
-import React from 'react'
+import * as React from 'react'
 
 import type {History, CreateHistory} from 'history'
 
@@ -29,11 +29,11 @@ declare module 'react-router' {
     routeParams: Params,
     children?: React.Element<any>,
   }
-  declare export type RouteComponent = ReactClass<RouteComponentProps> | string;
-  declare export type EnterHook = ((nextState: RouterState, replace: RedirectFunction) => any)
-    | ((nextState: RouterState, replace: RedirectFunction, callback: (error?: ?Error) => any) => any)
-  declare export type ChangeHook = ((prevState: RouterState, nextState: RouterState, replace: RedirectFunction) => any)
-    | ((prevState: RouterState, nextState: RouterState, replace: RedirectFunction, callback: (error?: ?Error) => any) => any);
+  declare export type RouteComponent = React.ComponentType<RouteComponentProps> | string;
+  declare export type EnterHook = 
+    (nextState: RouterState, replace: RedirectFunction, callback: (error: ?Error) => any) => any;
+  declare export type ChangeHook =
+    (prevState: RouterState, nextState: RouterState, replace: RedirectFunction, callback: (error: ?Error) => any) => any;
   declare export type Hash = string;
   declare export type LeaveHook = (prevState: RouterState) => any;
   declare export type Location = {
@@ -125,7 +125,7 @@ declare module 'react-router' {
     routes: Array<PlainRoute>,
     params: Params,
     components: Array<RouteComponent>,
-    createElement: <Props: Object>(component: ReactClass<Props>, props: Props) => React.Element<Props>,
+    createElement: <Props: Object>(component: React.ComponentType<Props>, props: Props) => React.Element<Props>,
   };
   declare export class RouterContext extends React.Component<void, RouterContextProps, void> {
   }
@@ -133,7 +133,7 @@ declare module 'react-router' {
     children?: Route | PlainRoute | Array<Route> | Array<PlainRoute>,
     routes?: Route | PlainRoute | Array<Route> | Array<PlainRoute>,
     history: History,
-    createElement?: <Props: Object>(component: ReactClass<Props>, props: Props) => React.Element<Props>,
+    createElement?: <Props: Object>(component: React.ComponentType<Props>, props: Props) => React.Element<Props>,
     onError?: (error: Error) => any,
     onUpdate?: () => any,
     render?: (props: RouterContextProps) => React.Element<any>,
@@ -166,8 +166,8 @@ declare module 'react-router' {
   declare export class IndexLink extends React.Component<void, LinkProps, void> {
   }
   declare export function withRouter<Props: RouteComponentProps>(
-    comp: ReactClass<Props>
-  ): ReactClass<$Diff<Props, RouteComponentProps>>;
+    comp: React.ComponentType<Props>
+  ): React.ComponentType<$Diff<Props, RouteComponentProps>>;
 
   declare export var browserHistory: History;
   declare export var hashHistory: History;

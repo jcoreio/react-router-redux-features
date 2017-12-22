@@ -2,6 +2,7 @@
 <PROJECT_ROOT>/lib/.*
 .*/node_modules/.*/tests?/.*\.json
 .*/node_modules/fbjs/.*
+<PROJECT_ROOT>/node_modules/immutable/.*
 
 [include]
 ./src
@@ -16,4 +17,3 @@ module.name_mapper='.*\.scss$' -> 'empty/object'
 module.name_mapper='.*\.css$' -> 'empty/object'
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
-suppress_comment= \\(.\\|\n\\)*\\flow-issue
