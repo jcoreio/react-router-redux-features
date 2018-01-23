@@ -21,7 +21,7 @@ export {
   createFeatureRoute,
 }
 
-export default function create<S, A>(options: Options<S, A>): {
+export default function create<S, A: {type: $Subtype<string>}>(options: Options<S, A>): {
 } {
   const createChildRoutesSelector = _createChildRoutesSelector(options)
   const getChildRoutes = createGetChildRoutes(createChildRoutesSelector)

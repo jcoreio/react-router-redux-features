@@ -12,7 +12,7 @@ import type {FeatureStateAlert as _FeatureStateAlert} from './index'
 export type GetRoute<S, A> = (feature: Feature<S, A>) => ?PlainRoute
 export type GetRoutes<S, A> = (feature: Feature<S, A>) => ?(PlainRoute | Array<PlainRoute>)
 
-export type Options<S, A> = {
+export type Options<S, A: {type: $Subtype<string>}> = {
   route: PlainRoute | (store: Store<S, A>) => PlainRoute,
   getRoute?: GetRoute<S, A>,
   getRoutes?: GetRoutes<S, A>,
@@ -26,7 +26,7 @@ export type Options<S, A> = {
   FeatureStateAlert?: _FeatureStateAlert,
 }
 
-export default function wrapRoute<S, A>(
+export default function wrapRoute<S, A: {type: $Subtype<string>}>(
   options: Options<S, A>
 ): PlainRoute {
   const {store, featureId, featureName, getFeatureStates, getFeatures, isServer, getRoute, getRoutes} = options
@@ -89,7 +89,7 @@ export default function wrapRoute<S, A>(
     delete result[valueName]
     result[getterName] = (nextState: RouterState, callback: (error: ?Error, result?: ?T) => any) => {
       const promise: ?Promise<void> = selectFeatureState(store.getState()) === 'NOT_LOADED'
-        ? (store.dispatch(loadFeature(featureId)): any)
+        ? (store.dispatch((loadFeature(featureId): any)): any)
         : null
       function done(): any {
         const loadedRoute = selectLoadedRoute(store.getState())
@@ -114,7 +114,7 @@ export default function wrapRoute<S, A>(
 
   result.onEnter = (nextState: any, replace: any, callback: (error: ?Error) => any) => {
     const promise: ?Promise<void> = selectFeatureState(store.getState()) === 'NOT_LOADED'
-      ? (store.dispatch(loadFeature(featureId)): any)
+      ? (store.dispatch((loadFeature(featureId): any)): any)
       : null
     function done(): any {
       const loadedRoute = selectLoadedRoute(store.getState())

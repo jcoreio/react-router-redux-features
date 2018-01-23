@@ -9,7 +9,7 @@ import optionsDefaults from './optionsDefaults'
 import wrapRoute from './wrapRoute'
 import type {GetRoute} from './wrapRoute'
 
-export type FirstOptions<S, A> = {
+export type FirstOptions<S, A: {type: $Subtype<string>}> = {
   isServer?: boolean,
   getFeatureStates?: (state: S) => FeatureStates,
   getFeatures?: (state: S) => Features<S, A>,
@@ -17,14 +17,14 @@ export type FirstOptions<S, A> = {
   FeatureStateAlert?: _FeatureStateAlert,
 }
 
-export type SecondOptions<S, A> = {
+export type SecondOptions<S, A: {type: $Subtype<string>}> = {
   store: Store<S, A>,
   featureId: string,
   featureName: string,
   getRoute: GetRoute<S, A>,
 }
 
-export default function createFeatureRoute<S, A>(firstOptions: FirstOptions<S, A>): (options: SecondOptions<S, A>) => PlainRoute {
+export default function createFeatureRoute<S, A: {type: $Subtype<string>}>(firstOptions: FirstOptions<S, A>): (options: SecondOptions<S, A>) => PlainRoute {
   firstOptions = optionsDefaults(firstOptions)
   const {getFeatures} = firstOptions
   return (secondOptions: SecondOptions<S, A>): PlainRoute => {

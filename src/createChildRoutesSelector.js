@@ -11,7 +11,7 @@ import wrapRoute from './wrapRoute'
 import type {GetRoutes} from './wrapRoute'
 import optionsDefaults from './optionsDefaults'
 
-export type Options<S, A> = {
+export type Options<S, A: {type: $Subtype<string>}> = {
   isServer?: boolean,
   getFeatureStates?: (state: S) => FeatureStates,
   getFeatures?: (state: S) => Features<S, A>,
@@ -20,7 +20,7 @@ export type Options<S, A> = {
   FeatureStateAlert?: _FeatureStateAlert,
 }
 
-export default function createChildRoutesSelector<S, A>(
+export default function createChildRoutesSelector<S, A: {type: $Subtype<string>}>(
   options: Options<S, A>
 ): (getRoutes: GetRoutes<S, A>) => (store: Store<S, A>) => Array<PlainRoute> {
   options = optionsDefaults(options)

@@ -6,7 +6,7 @@ import type {PlainRoute} from 'react-router'
 
 import type {GetRoutes} from './wrapRoute'
 
-export default function createGetChildRoutes<S, A>(
+export default function createGetChildRoutes<S, A: {type: $Subtype<string>}>(
   createChildRoutesSelector: (getRoutes: GetRoutes<S, A>) => (store: Store<S, A>) => Array<PlainRoute>
 ): (store: Store<S, A>, getRoutes: GetRoutes<S, A>) => GetChildRoutes {
   return (store: Store<S, A>, getRoutes: GetRoutes<S, A>) => {
